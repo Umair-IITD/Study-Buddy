@@ -1,4 +1,3 @@
-@"
 # Interaction Log for Study Buddy 🤖
 
 This document shows example conversations between a user and the Study Buddy chatbot.
