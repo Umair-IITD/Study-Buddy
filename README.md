@@ -15,6 +15,11 @@ This project was built as part of the **SDE Assignment Round**.
 
 ---
 
+## 🎥 Demo Video
+Watch the demo here: [Click to view](https://drive.google.com/file/d/1v18gNpA--WgGXLW1cTPiQgP9tKu-kbyy/view?usp=sharing)
+
+---
+
 ## ✨ Features
 - 🤖 **Interactive Chatbot UI**: Built with React, togglable chatbot popup  
 - 📘 **Assignment Helper**: Explains concepts across subjects (math, science, programming, etc.)  
