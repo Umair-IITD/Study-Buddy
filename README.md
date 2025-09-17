@@ -1,7 +1,7 @@
 # 📚 Study Buddy – AI Assignment Planner
 Author: Md Umair Alam; 
 Institute: IIT Delhi; 
-Department Biotechnology and Biochemical Engineering
+Department: Biotechnology and Biochemical Engineering
 
 ## Overview
 **Study Buddy** is an AI-powered chatbot designed to help students plan, schedule, and manage their studies.  
