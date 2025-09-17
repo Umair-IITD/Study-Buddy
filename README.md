@@ -1,12 +1,67 @@
-# React + Vite
+# 📚 Study Buddy – AI Assignment Planner
+Author: Md Umair Alam
+Institute: IIT Delhi
+DFepartment Biotechnology and Biochemical Engineering
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+**Study Buddy** is an AI-powered chatbot designed to help students plan, schedule, and manage their studies.  
+It acts as a personal tutor and productivity assistant by:
+- Explaining academic concepts in simple terms
+- Helping with assignments and coding tasks
+- Suggesting personalized study plans and timetables
+- Tracking progress and keeping students motivated
 
-Currently, two official plugins are available:
+This project was built as part of the **SDE Assignment Round**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Features
+- 🤖 **Interactive Chatbot UI**: Built with React, togglable chatbot popup  
+- 📘 **Assignment Helper**: Explains concepts across subjects (math, science, programming, etc.)  
+- 📝 **Study Planner & Scheduler**: Suggests timetables, breaks, and task organization  
+- 📊 **Progress Tracking**: Helps track completed vs. pending tasks  
+- 🎯 **Motivation & Guidance**: Acts as a friendly mentor with encouragement  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Tech Stack
+- **Frontend**: React + Vite  
+- **Language Model**: Google Gemini API (`gemini-2.5-flash`)  
+- **Styling**: CSS  
+- **Deployment**: Vercel (recommended)  
+
+---
+
+## 📂 Project Structure
+Study-Buddy/
+│── src/
+│ ├── components/ # UI components (ChatForm, ChatMessage, ChatbotIcon)
+│ ├── StudyBuddyInfo.js # AI context & instructions
+│ ├── App.jsx # Main application logic
+│ └── index.css # Styles
+│── .env # Environment variables (API key & URL)
+│── index.html
+│── package.json
+
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/Umair-IITD/Study-Buddy.git
+cd Study-Buddy
+
+### 2. Install dependencies
+npm install
+
+### 3. Add environment variables
+Create a .env file in the root and add:
+VITE_GEMINI_API_KEY=your_api_key_here
+VITE_API_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+### 4. Run locally
+npm run dev
+
+The app will run on http://localhost:5173.
