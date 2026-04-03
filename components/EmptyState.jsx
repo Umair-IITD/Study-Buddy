@@ -4,56 +4,173 @@ import { GraduationCap, Timer, BookOpen, Lightbulb } from "lucide-react";
 
 const SUGGESTIONS = [
   {
-    icon: <Timer className="text-amber-400" size={18} />,
+    icon: <Timer size={18} />,
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.1)",
     title: "Study Planning",
-    prompt: "I have classes from 9am-12pm and 2pm-4pm. I need to study 3 hours for my math exam tomorrow. Create a plan.",
+    prompt:
+      "I have classes from 9am-12pm and 2pm-4pm. I need to study 3 hours for my math exam tomorrow. Create a plan.",
   },
   {
-    icon: <BookOpen className="text-emerald-400" size={18} />,
+    icon: <BookOpen size={18} />,
+    color: "#10b981",
+    bg: "rgba(16,185,129,0.1)",
     title: "Explain Concepts",
-    prompt: "Explain the difference between photosynthesis and cellular respiration in simple terms.",
+    prompt:
+      "Explain the difference between photosynthesis and cellular respiration in simple terms.",
   },
   {
-    icon: <Lightbulb className="text-sky-400" size={18} />,
+    icon: <Lightbulb size={18} />,
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,0.1)",
     title: "Problem Solving",
-    prompt: "How do I solve a quadratic equation using the quadratic formula? Provide an example.",
+    prompt:
+      "How do I solve a quadratic equation using the quadratic formula? Provide an example.",
   },
   {
-    icon: <GraduationCap className="text-indigo-400" size={18} />,
+    icon: <GraduationCap size={18} />,
+    color: "#8b5cf6",
+    bg: "rgba(139,92,246,0.1)",
     title: "Research Support",
-    prompt: "Give me some key points to include in a research paper about renewable energy sources.",
+    prompt:
+      "Give me key points to include in a research paper about renewable energy sources.",
   },
 ];
 
 export default function EmptyState({ onSelectPrompt }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-      <div className="mb-8 p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 shadow-2xl animate-pulse">
-        <GraduationCap size={48} className="text-indigo-500" />
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+        textAlign: "center",
+      }}
+    >
+      {/* Hero icon */}
+      <div
+        style={{
+          marginBottom: "24px",
+          width: "72px",
+          height: "72px",
+          borderRadius: "20px",
+          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 8px 24px rgba(99,102,241,0.35)",
+        }}
+      >
+        <GraduationCap size={36} color="white" />
       </div>
-      
-      <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">
-        How can <span className="text-indigo-500">Study Buddy</span> help you today?
+
+      <h1
+        style={{
+          fontSize: "clamp(1.4rem, 4vw, 2rem)",
+          fontWeight: 800,
+          color: "var(--text-primary)",
+          marginBottom: "8px",
+          letterSpacing: "-0.03em",
+          lineHeight: 1.2,
+        }}
+      >
+        How can{" "}
+        <span style={{ color: "var(--accent)" }}>Study Buddy</span> help?
       </h1>
-      <p className="text-slate-400 max-w-sm mb-12">
-        Solve doubts, plan your study routine, and stay productive with your AI-powered academic assistant.
+      <p
+        style={{
+          fontSize: "0.9rem",
+          color: "var(--text-secondary)",
+          maxWidth: "380px",
+          lineHeight: 1.6,
+          marginBottom: "40px",
+        }}
+      >
+        Your AI-powered academic assistant. Ask anything — from study plans to
+        explaining complex concepts.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
+      {/* Suggestion cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "12px",
+          maxWidth: "640px",
+          width: "100%",
+        }}
+      >
         {SUGGESTIONS.map((s, i) => (
           <button
             key={i}
             onClick={() => onSelectPrompt(s.prompt)}
-            className="flex flex-col items-start p-4 bg-slate-800/50 hover:bg-slate-700/80 border border-slate-700 hover:border-indigo-500/50 rounded-xl transition-all group text-left shadow-sm active:scale-95"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              padding: "16px",
+              background: "var(--bg-card)",
+              border: "1.5px solid var(--border-color)",
+              borderRadius: "14px",
+              cursor: "pointer",
+              textAlign: "left",
+              transition: "all 0.2s ease",
+              boxShadow: "var(--shadow)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = s.color;
+              e.currentTarget.style.transform = "translateY(-3px)";
+              e.currentTarget.style.boxShadow = `0 8px 20px rgba(0,0,0,0.1)`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border-color)";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "var(--shadow)";
+            }}
           >
-            <div className="flex items-center gap-2 mb-2">
+            {/* Icon badge */}
+            <div
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                background: s.bg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: s.color,
+                marginBottom: "10px",
+              }}
+            >
               {s.icon}
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-widest group-hover:text-white transition-colors">
-                {s.title}
-              </span>
             </div>
-            <p className="text-sm text-slate-500 group-hover:text-slate-300 transition-colors line-clamp-2 italic">
-               "{s.prompt}"
+            <p
+              style={{
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+                marginBottom: "4px",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {s.title}
+            </p>
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-secondary)",
+                lineHeight: 1.5,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {s.prompt}
             </p>
           </button>
         ))}

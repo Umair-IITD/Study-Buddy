@@ -16,32 +16,86 @@ export default function ChatMessage({ message }) {
   };
 
   return (
-    <div className={`group flex gap-4 p-6 ${isUser ? "" : "bg-slate-800/30 border-y border-slate-700/50 shadow-inner"}`}>
-      <div className="flex-shrink-0">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${
-          isUser ? "bg-slate-700 text-slate-300 ring-1 ring-slate-600" : "bg-indigo-600 text-white ring-1 ring-indigo-400"
-        }`}>
-          {isUser ? <User size={18} /> : <GraduationCap size={18} />}
+    <div
+      className="animate-fade-in-up"
+      style={{
+        display: "flex",
+        gap: "14px",
+        padding: "18px 24px",
+        background: isUser ? "transparent" : "var(--bg-message-ai)",
+        borderBottom: "1px solid var(--border-color)",
+        transition: "background 0.3s ease",
+      }}
+    >
+      {/* Avatar */}
+      <div style={{ flexShrink: 0, paddingTop: "2px" }}>
+        <div
+          style={{
+            width: "34px",
+            height: "34px",
+            borderRadius: "10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: isUser
+              ? "var(--bg-card)"
+              : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            border: isUser ? "1.5px solid var(--border-color)" : "none",
+            boxShadow: isUser ? "none" : "0 2px 8px rgba(99,102,241,0.35)",
+            color: isUser ? "var(--text-secondary)" : "white",
+          }}
+        >
+          {isUser ? <User size={16} /> : <GraduationCap size={16} />}
         </div>
       </div>
 
-      <div className="flex-1 min-w-0 max-w-4xl mx-auto space-y-2">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0, maxWidth: "48rem", margin: "0 auto" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "6px",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 700,
+              color: "var(--text-muted)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
             {isUser ? "You" : "Study Buddy"}
           </span>
           {!isUser && (
             <button
               onClick={copyToClipboard}
-              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-slate-700 text-slate-400 hover:text-indigo-400 transition-all active:scale-90"
               title="Copy to clipboard"
+              style={{
+                padding: "4px 6px",
+                borderRadius: "6px",
+                border: "none",
+                background: "transparent",
+                color: copied ? "#10b981" : "var(--text-muted)",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "11px",
+              }}
             >
-              {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+              {copied ? <Check size={13} /> : <Copy size={13} />}
+              {copied ? "Copied!" : "Copy"}
             </button>
           )}
         </div>
 
-        <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700 prose-pre:rounded-xl prose-code:text-indigo-300">
+        {/* Markdown rendered message */}
+        <div className="prose-light">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.text}
           </ReactMarkdown>

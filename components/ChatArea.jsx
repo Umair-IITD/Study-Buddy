@@ -14,18 +14,24 @@ export default function ChatArea({ messages, onSelectPrompt }) {
   }, [messages]);
 
   return (
-    <div 
-      ref={scrollRef} 
-      className="flex-1 overflow-y-auto scroll-smooth flex flex-col space-y-2 bg-slate-900/20"
+    <div
+      ref={scrollRef}
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--bg-primary)",
+        transition: "background 0.3s ease",
+      }}
     >
       {messages.length === 0 ? (
         <EmptyState onSelectPrompt={onSelectPrompt} />
       ) : (
-        <div className="flex flex-col py-4">
+        <div style={{ display: "flex", flexDirection: "column", paddingBottom: "20px" }}>
           {messages.map((m, index) => (
             <ChatMessage key={index} message={m} />
           ))}
-          <div className="h-20" /> {/* Extra spacing at bottom */}
         </div>
       )}
     </div>

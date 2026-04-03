@@ -30,10 +30,37 @@ export default function ChatInput({ onSendMessage, isLoading }) {
   }, [input]);
 
   return (
-    <div className="p-4 border-t border-slate-800 bg-slate-900/50 backdrop-blur-md">
+    <div
+      style={{
+        borderTop: "1px solid var(--border-color)",
+        background: "var(--bg-primary)",
+        padding: "12px 16px 16px",
+        backdropFilter: "blur(12px)",
+      }}
+    >
       <form
         onSubmit={handleSubmit}
-        className="max-w-4xl mx-auto flex items-end gap-2 bg-slate-800/80 p-2 rounded-2xl border border-slate-700 shadow-xl focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all"
+        style={{
+          maxWidth: "48rem",
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "flex-end",
+          gap: "8px",
+          background: "var(--bg-input)",
+          padding: "8px",
+          borderRadius: "16px",
+          border: "1.5px solid var(--border-color)",
+          boxShadow: "var(--shadow-md)",
+          transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = "var(--accent)";
+          e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12), var(--shadow-md)";
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = "var(--border-color)";
+          e.currentTarget.style.boxShadow = "var(--shadow-md)";
+        }}
       >
         <textarea
           ref={textareaRef}
@@ -41,14 +68,33 @@ export default function ChatInput({ onSendMessage, isLoading }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={isLoading ? "Thinking..." : "Ask your Study Buddy anything..."}
+          placeholder={isLoading ? "Thinking…" : "Ask your Study Buddy anything…"}
           disabled={isLoading}
-          className="flex-1 bg-transparent border-none focus:ring-0 text-slate-200 placeholder-slate-500 resize-none py-2 px-3 scrollbar-hide max-h-48 text-sm"
+          style={{
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: "var(--text-primary)",
+            fontSize: "0.9rem",
+            padding: "6px 8px",
+            maxHeight: "160px",
+            fontFamily: "inherit",
+          }}
         />
         <button
           type="submit"
           disabled={!input.trim() || isLoading}
-          className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 text-white transition-all disabled:opacity-50 active:scale-90"
+          style={{
+            padding: "8px",
+            borderRadius: "10px",
+            background: input.trim() && !isLoading ? "var(--accent)" : "var(--border-color)",
+            color: "white",
+            border: "none",
+            cursor: input.trim() && !isLoading ? "pointer" : "not-allowed",
+            transition: "all 0.2s ease",
+            flexShrink: 0,
+          }}
         >
           {isLoading ? (
             <Loader2 className="animate-spin" size={20} />
@@ -57,8 +103,15 @@ export default function ChatInput({ onSendMessage, isLoading }) {
           )}
         </button>
       </form>
-      <p className="text-[10px] text-center text-slate-600 mt-2">
-        Study Buddy can make mistakes. Check important information.
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "11px",
+          color: "var(--text-muted)",
+          marginTop: "8px",
+        }}
+      >
+        Study Buddy can make mistakes. Verify important information.
       </p>
     </div>
   );
