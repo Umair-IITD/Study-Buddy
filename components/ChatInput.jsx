@@ -5,6 +5,8 @@ import { useState, useRef, useEffect } from "react";
 
 export default function ChatInput({ onSendMessage, isLoading }) {
   const [input, setInput] = useState("");
+  const [focused, setFocused] = useState(false);
+  const [sendHovered, setSendHovered] = useState(false);
   const textareaRef = useRef(null);
 
   const handleSubmit = (e) => {
@@ -29,13 +31,14 @@ export default function ChatInput({ onSendMessage, isLoading }) {
     }
   }, [input]);
 
+  const canSend = input.trim() && !isLoading;
+
   return (
     <div
       style={{
         borderTop: "1px solid var(--border-color)",
         background: "var(--bg-primary)",
         padding: "12px 16px 16px",
-        backdropFilter: "blur(12px)",
       }}
     >
       <form
@@ -49,17 +52,11 @@ export default function ChatInput({ onSendMessage, isLoading }) {
           background: "var(--bg-input)",
           padding: "8px",
           borderRadius: "16px",
-          border: "1.5px solid var(--border-color)",
-          boxShadow: "var(--shadow-md)",
+          border: `1.5px solid ${focused ? "var(--accent)" : "var(--border-color)"}`,
+          boxShadow: focused
+            ? "0 0 0 3px rgba(99,102,241,0.12), var(--shadow-md)"
+            : "var(--shadow)",
           transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = "var(--accent)";
-          e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12), var(--shadow-md)";
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = "var(--border-color)";
-          e.currentTarget.style.boxShadow = "var(--shadow-md)";
         }}
       >
         <textarea
@@ -68,6 +65,8 @@ export default function ChatInput({ onSendMessage, isLoading }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           placeholder={isLoading ? "Thinking…" : "Ask your Study Buddy anything…"}
           disabled={isLoading}
           style={{
@@ -80,20 +79,29 @@ export default function ChatInput({ onSendMessage, isLoading }) {
             padding: "6px 8px",
             maxHeight: "160px",
             fontFamily: "inherit",
+            resize: "none",
           }}
         />
         <button
           type="submit"
-          disabled={!input.trim() || isLoading}
+          disabled={!canSend}
+          onMouseEnter={() => setSendHovered(true)}
+          onMouseLeave={() => setSendHovered(false)}
           style={{
-            padding: "8px",
+            padding: "9px",
             borderRadius: "10px",
-            background: input.trim() && !isLoading ? "var(--accent)" : "var(--border-color)",
-            color: "white",
+            background: canSend
+              ? sendHovered
+                ? "var(--accent-hover)"
+                : "var(--accent)"
+              : "var(--border-color)",
+            color: canSend ? "white" : "var(--text-muted)",
             border: "none",
-            cursor: input.trim() && !isLoading ? "pointer" : "not-allowed",
+            cursor: canSend ? "pointer" : "not-allowed",
             transition: "all 0.2s ease",
             flexShrink: 0,
+            transform: canSend && sendHovered ? "scale(1.08)" : "scale(1)",
+            boxShadow: canSend && sendHovered ? "0 4px 12px rgba(99,102,241,0.35)" : "none",
           }}
         >
           {isLoading ? (

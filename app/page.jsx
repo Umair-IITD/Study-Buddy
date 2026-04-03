@@ -15,6 +15,39 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
+/* ── small reusable icon-button ─────────────────────── */
+function IconBtn({ onClick, active, title, children }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        padding: "7px",
+        borderRadius: "8px",
+        border: "none",
+        background: active
+          ? "var(--accent-soft)"
+          : hovered
+          ? "var(--bg-card)"
+          : "transparent",
+        color: active ? "var(--accent)" : hovered ? "var(--text-primary)" : "var(--text-secondary)",
+        cursor: "pointer",
+        transition: "all 0.15s ease",
+        transform: hovered ? "scale(1.08)" : "scale(1)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ── main page ──────────────────────────────────────── */
 export default function Home() {
   const [messages, setMessages] = useState([]);
   const [chatHistory, setChatHistory] = useState([]);
@@ -30,9 +63,7 @@ export default function Home() {
     setMounted(true);
     const saved = localStorage.getItem("study_buddy_history");
     if (saved) {
-      try {
-        setChatHistory(JSON.parse(saved));
-      } catch {}
+      try { setChatHistory(JSON.parse(saved)); } catch {}
     }
   }, []);
 
@@ -50,10 +81,7 @@ export default function Home() {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Server error");
-      }
+      if (!response.ok) throw new Error(data.error || "Server error");
 
       const botMessage = { role: "assistant", text: data.text };
       const finalMessages = [...newMessages, botMessage];
@@ -107,40 +135,30 @@ export default function Home() {
         transition: "background 0.3s ease, color 0.3s ease",
       }}
     >
-      {/* Sidebar overlay for mobile */}
-      {sidebarOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.4)",
-            zIndex: 19,
-            display: "none",
-          }}
-          className="mobile-overlay"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* ── Sidebar: slides in/out, collapses to zero width ── */}
       <div
         style={{
+          width: sidebarOpen ? "256px" : "0px",
+          flexShrink: 0,
+          overflow: "hidden",
+          transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           position: "relative",
           zIndex: 20,
-          transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 0.3s ease",
-          flexShrink: 0,
         }}
       >
-        <ChatSidebar
-          chatHistory={chatHistory}
-          onNewChat={handleNewChat}
-          onDeleteChat={deleteChatHistory}
-        />
+        {/* The inner sidebar keeps its 256px, parent clips it */}
+        <div style={{ width: "256px", height: "100%" }}>
+          <ChatSidebar
+            chatHistory={chatHistory}
+            onNewChat={handleNewChat}
+            onDeleteChat={deleteChatHistory}
+          />
+        </div>
       </div>
 
-      {/* Main content */}
+      {/* ── Main content: grows to fill all space when sidebar closes ── */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, position: "relative" }}>
+        
         {/* Header */}
         <header
           style={{
@@ -159,99 +177,54 @@ export default function Home() {
             transition: "background 0.3s ease",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{
-                padding: "7px",
-                borderRadius: "8px",
-                border: "none",
-                background: "transparent",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-card)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-            >
+          {/* Left: sidebar toggle */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <IconBtn onClick={() => setSidebarOpen(!sidebarOpen)} title={sidebarOpen ? "Close sidebar" : "Open sidebar"}>
               <PanelLeft size={20} />
-            </button>
+            </IconBtn>
+            {!sidebarOpen && (
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
+                  color: "var(--text-primary)",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Study Buddy
+              </span>
+            )}
           </div>
 
-          {/* Right controls */}
+          {/* Right: controls */}
           <div style={{ display: "flex", alignItems: "center", gap: "4px", position: "relative" }}>
-            {/* Search button */}
-            <button
+            <IconBtn
               onClick={() => { setShowSearch(!showSearch); setShowSettings(false); }}
-              style={{
-                padding: "7px",
-                borderRadius: "8px",
-                border: "none",
-                background: showSearch ? "var(--accent-soft)" : "transparent",
-                color: showSearch ? "var(--accent)" : "var(--text-secondary)",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-card)"; }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = showSearch ? "var(--accent-soft)" : "transparent";
-              }}
+              active={showSearch}
               title="Search"
             >
               <Search size={18} />
-            </button>
+            </IconBtn>
 
-            {/* Theme toggle */}
-            <button
+            <IconBtn
               onClick={() => setTheme(isDark ? "light" : "dark")}
-              style={{
-                padding: "7px",
-                borderRadius: "8px",
-                border: "none",
-                background: "transparent",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-card)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
               title={isDark ? "Switch to Light mode" : "Switch to Dark mode"}
             >
               {mounted ? (isDark ? <Sun size={18} /> : <Moon size={18} />) : <Moon size={18} />}
-            </button>
+            </IconBtn>
 
             {/* Divider */}
-            <div
-              style={{
-                width: "1px",
-                height: "28px",
-                background: "var(--border-color)",
-                margin: "0 6px",
-              }}
-            />
+            <div style={{ width: "1px", height: "28px", background: "var(--border-color)", margin: "0 4px" }} />
 
-            {/* Settings */}
-            <button
+            <IconBtn
               onClick={() => { setShowSettings(!showSettings); setShowSearch(false); }}
-              style={{
-                padding: "7px",
-                borderRadius: "8px",
-                border: "none",
-                background: showSettings ? "var(--accent-soft)" : "transparent",
-                color: showSettings ? "var(--accent)" : "var(--text-secondary)",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-card)"; }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = showSettings ? "var(--accent-soft)" : "transparent";
-              }}
+              active={showSettings}
               title="Settings"
             >
               <Settings size={18} />
-            </button>
+            </IconBtn>
 
-            {/* Settings dropdown */}
+            {/* ── Settings dropdown ── */}
             {showSettings && (
               <div
                 style={{
@@ -262,7 +235,7 @@ export default function Home() {
                   background: "var(--bg-secondary)",
                   border: "1px solid var(--border-color)",
                   borderRadius: "14px",
-                  boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.18)",
                   padding: "16px",
                   zIndex: 100,
                   animation: "fadeInUp 0.2s ease",
@@ -270,43 +243,18 @@ export default function Home() {
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                   <h3 style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--text-primary)" }}>Settings</h3>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: "2px" }}
-                  >
-                    <X size={16} />
-                  </button>
+                  <IconBtn onClick={() => setShowSettings(false)} title="Close">
+                    <X size={15} />
+                  </IconBtn>
                 </div>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "14px" }}>
                   Manage your Study Buddy preferences.
                 </p>
-                <button
-                  onClick={clearAllData}
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "10px 12px",
-                    background: "rgba(239,68,68,0.08)",
-                    color: "#ef4444",
-                    border: "1px solid rgba(239,68,68,0.2)",
-                    borderRadius: "8px",
-                    fontSize: "0.85rem",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.15)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(239,68,68,0.08)"; }}
-                >
-                  <Trash2 size={14} />
-                  Clear All Chat Data
-                </button>
+                <ClearButton onClick={clearAllData} />
               </div>
             )}
 
-            {/* Search dropdown */}
+            {/* ── Search dropdown ── */}
             {showSearch && (
               <div
                 style={{
@@ -317,8 +265,8 @@ export default function Home() {
                   background: "var(--bg-secondary)",
                   border: "1px solid var(--border-color)",
                   borderRadius: "14px",
-                  boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
-                  padding: "10px",
+                  boxShadow: "0 12px 40px rgba(0,0,0,0.18)",
+                  padding: "10px 12px",
                   zIndex: 100,
                   animation: "fadeInUp 0.2s ease",
                   display: "flex",
@@ -344,12 +292,9 @@ export default function Home() {
                     fontFamily: "inherit",
                   }}
                 />
-                <button
-                  onClick={() => setShowSearch(false)}
-                  style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: "2px" }}
-                >
+                <IconBtn onClick={() => setShowSearch(false)} title="Close">
                   <X size={14} />
-                </button>
+                </IconBtn>
               </div>
             )}
           </div>
@@ -358,11 +303,11 @@ export default function Home() {
         {/* Chat area */}
         <ChatArea messages={messages} onSelectPrompt={handleSendMessage} />
 
-        {/* Input area */}
+        {/* Input */}
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </div>
 
-      {/* Click outside to close modals */}
+      {/* Click outside to close dropdowns */}
       {(showSettings || showSearch) && (
         <div
           style={{ position: "fixed", inset: 0, zIndex: 9 }}
@@ -370,5 +315,37 @@ export default function Home() {
         />
       )}
     </main>
+  );
+}
+
+/* ── Clear button with hover state ─────────────────── */
+function ClearButton({ onClick }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "10px 12px",
+        background: hovered ? "rgba(239,68,68,0.15)" : "rgba(239,68,68,0.08)",
+        color: "#ef4444",
+        border: "1px solid rgba(239,68,68,0.25)",
+        borderRadius: "8px",
+        fontSize: "0.85rem",
+        fontWeight: 500,
+        cursor: "pointer",
+        transition: "all 0.15s ease",
+        transform: hovered ? "translateY(-1px)" : "translateY(0)",
+        boxShadow: hovered ? "0 4px 12px rgba(239,68,68,0.15)" : "none",
+      }}
+    >
+      <Trash2 size={14} />
+      Clear All Chat Data
+    </button>
   );
 }
