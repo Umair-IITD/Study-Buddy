@@ -1,246 +1,87 @@
-# System Design Document – Study Buddy (AI Assignment Planner + Doubt Solver)
+# 🏛️ System Design – Study Buddy (AI Academic Assistant)
 
-**Author:** Md Umair Alam  
-**University:** IIT Delhi (Biotechnology and Biochemical Eng.)  
-**Repository:** [Study Buddy GitHub Repo](https://github.com/Umair-IITD/Study-Buddy)  
-**Deployed App:** [Study Buddy on Vercel](https://study-buddy-two-navy.vercel.app)  
-**Date:** 18th September 2025  
-
----
-
-## 1. Purpose & Goals
-
-**Purpose:**  
-Build an AI agent prototype — **Study Buddy** — that helps students with assignment guidance, topic explanations, and personalized study planning/scheduling.
-
-**Goals (assignment-aligned):**
-- Demonstrate an agent that can reason, plan and execute to automate a manual task (study planning).
-- Provide a user interface (chat UI) for interaction.
-- Produce deliverables: source code, system design doc, interaction logs, optional demo.
-
-**Non-goals (explicit):**
-- Not intended as a medical/diagnostic tool.
-- Not production-level user management or scale-out infrastructure (unless extended).
+**Author:** Md Umair Alam (IIT Delhi)  
+**Date:** March 2026 (Updated for Groq Integration)  
+**Repository:** [GitHub](https://github.com/Umair-IITD/Study-Buddy)  
+**Environment:** Next.js 15 (App Router), deployed on Vercel.
 
 ---
 
-## 2. Functional Requirements
-1. Chat UI where users ask questions or request study plans.  
-2. Agent uses system prompt (`StudyBuddyInfo.js`) + chat history to produce domain-specific replies.  
-3. Generate study plans and schedules given user constraints (classes, labs, gym, free slots).  
-4. Provide worked-out examples (e.g., math) with step-by-step solutions.  
-5. Save interaction logs for submission and debugging.  
-6. *(Optional bonus)* Planner & Executor separation (two-agent pattern), task storage, reminders, and dashboard.  
+## 🧐 Purpose & Technical Goals
+
+**Study Buddy** is an intelligent AI agent platform designed to automate the manual cognitive load of study planning and concept clarification.
+
+**Core Technical Objectives:**
+- **Inference Speed**: Minimize Time-to-First-Token (TTFT) using specialized hardware-accelerated LLM inference.
+- **Security Protocols**: Maintain strict separation between client-side UI and server-side secret management.
+- **Adaptive UX**: Deliver a high-retention user experience using a custom design system with full theme-awareness.
 
 ---
 
-## 3. Non-Functional Requirements
-- **Response time:** < 3s typical; handle longer gracefully (loading state).  
-- **Availability:** Deployed on Vercel; tolerate occasional LLM 503 errors with retry/backoff.  
-- **Security:** API keys stored as environment variables (not committed).  
-- **Maintainability:** Clear component separation, documented APIs.  
-- **Testability:** Unit + integration + manual acceptance tests documented.  
+## 🛠️ High-Level Architecture
+
+```mermaid
+graph TD
+    User([User Browser])
+    UI[Next.js React Components]
+    Storage[(LocalStorage)]
+    API[Next.js Serverless Route /api/chat]
+    LLM[Groq Llama-3.1-8b-instant]
+
+    User <--> UI
+    UI <--> Storage
+    UI -- POST / JSON --> API
+    API -- Groq SDK / Auth Headers --> LLM
+    LLM -- JSON Stream --> API
+    API -- JSON Response --> UI
+```
+
+### Flow Sequence
+1. **Request**: The user submits a prompt via the `ChatInput` component.
+2. **Contextual Enrichment**: The client maps the existing `localStorage` history to the standardized OpenAI-style role format.
+3. **Secure Bridge**: The frontend calls the serverless `/api/chat` route.
+4. **Backend Processing**: The server retrieves the `SB_API_KEY` from the environment, initializes the `groq-sdk`, and injects the **System Instruction** (persona context) to the message array.
+5. **Inference**: The LLM processes the request based on the "Academic Mentor" instruction set.
+6. **Persistence**: The response is returned, the UI state is updated, and the new interaction is persisted to `localStorage`.
 
 ---
 
-## 4. High-Level Architecture
+## 🧠 Model Selection & Prompt Engineering
 
-```text
-[User Browser] 
-     |
-     | (HTTP: chat requests UI)
-     v
- [Frontend: React + Vite]  
-     |
-     | --(1) calls-->  [/api/generate (Serverless Endpoint)]  
-     |                        |
-     |                        v
-     |                [Groq API (Llama 3)]
-     |                        |
-     v                        v
- LocalStorage            (optional) DB (Supabase/Firebase)
- (chatHistory, tasks)     Monitoring (Sentry, Vercel logs)
+### Inference Engine: Groq Llama-3.1-8b-instant
+Migrated from Google's Gemini to Groq's Llama-3.1 to leverage the ultra-fast LPUs (Language Processing Units). This reduces latency from seconds to milliseconds, enabling seamless real-time interactions.
 
-
-Flow:
-
-1. User types a query → frontend formats request (prepends StudyBuddyInfo system context optionally) and calls /api/generate.
-2. Serverless function receives request, reads server-side environment key, and calls Groq SDK.
-3. Response returned to frontend → UI updates chat and optionally persists logs/tasks.
-
-Why serverless?
-- Prevents exposing API key in client.
-- Straightforward with Vercel serverless functions.
-- Minimal infra.
+### Persona: The Academic Mentor
+The system instruction (found in `lib/groq.js`) defines a specific set of operational boundaries:
+- **Scaffolded Learning**: The AI is instructed to provide step-by-step guidance over direct solutions.
+- **Plagiarism Prevention**: Explicit instructions to refuse generation of complete exam answers.
+- **Tone & Voice**: Friendly, encouraging, and academically rigorous.
 
 ---
 
-## 5. Component Breakdown
+## 🔐 Security & Deployment Strategy
 
-**Frontend (React + Vite)**
-
-- App.jsx — main logic (chat history state, scroll behavior).
-- ChatForm.jsx — input handling + “Thinking…” state.
-- ChatMessage.jsx — render messages.
-- StudyBuddyInfo.js — system prompt (persona + feature list).
-- index.css — styling.
-- Responsibilities: format requests, display results, store logs locally, call backend endpoints.
-
-**Backend (Serverless / Node API)**
-
-- /api/generate — receives chat history, forwards to Groq with server-side API key.
-- /api/tasks — CRUD for planner tasks (optional).
-- /api/logs — store interaction logs (optional).
-- Responsibilities: secure API key usage, retries/backoff, validate inputs.
-
-**AI Layer**
-
-- Groq Llama 3 8B model is used.
-- System prompt (StudyBuddyInfo.js) supplies persona/context.
-
-**Persistence (Optional)**
-
-- LocalStorage (default): saves chatHistory + tasks.
-- DB (optional): Supabase / Firebase / SQLite for persistent storage.
+- **Environment Variables**: `SB_API_KEY` is strictly server-side. Next.js App Router prevents this variable from being bundled into client-side JS.
+- **CORS & Origin Control**: Deployment is restricted to Vercel's production origins.
+- **Data Privacy**: No PII is sent to external logs. Chat history is stored entirely in the user's browser via `localStorage`, ensuring zero server-side data retention.
 
 ---
 
-## 6. Data Design — Models & Schema
+## 🎨 UI/UX Design System
 
-**ChatMessage**
-```bash
-{
-  "id": "uuid",
-  "role": "user" | "model",
-  "text": "string",
-  "timestamp": "2025-08-24T17:02:41.000Z"
-}
-
-**Task (Study Task)**
-```bash
-{
-  "id": "uuid",
-  "title": "Revise Linear Algebra",
-  "description": "Matrices and determinants",
-  "start": "2025-08-25T11:00:00Z",
-  "end": "2025-08-25T13:00:00Z",
-  "priority": "high",
-  "status": "todo" // todo | done | in-progress
-}
-
-**Plan Object (Generated by Agent)**
-```bash
-{
-  "planId": "uuid",
-  "createdAt": "...",
-  "schedule": [
-    { "start": "09:00", "end": "10:30", "activity": "Math: integrals" }
-  ],
-  "notes": "Pomodoro 25/5 recommended"
-}
-
-**Interaction Log Format**
-```bash
-[
-  {
-    "user": "Can you help me solve 2x + 5 = 15?",
-    "bot": "x = 5 (explanation...)",
-    "timestamp": "2025-08-24T17:02:41.000Z"
-  }
-]
+The platform follows a **Custom Design System** with CSS Tokens:
+- **Theme-Awareness**: Utilizing `next-themes` and a centralized `globals.css` with variable mapping (`--bg-primary`, `--accent`, etc).
+- **Smooth Interaction**: CSS transitions and `framer-motion`-style animations (standardized via pure CSS) provide a premium feel.
+- **Component Modularization**: Atomic design principles applied (Atomic components: `IconBtn`, `ChatMessage`, etc. Molecules: `ChatSidebar`, `ChatArea`).
 
 ---
 
-## 7. Interaction Flow
+## 📈 Future Scalability Path
 
-1. User types message in ChatForm.
-2. Frontend appends message to chatHistory (role=user).
-3. Frontend sends POST /api/generate with history (prepend system prompt).
-4. Serverless forwards to Groq with secret key.
-5. Groq responds → serverless returns response.
-6. Frontend updates chatHistory with model response (role=model).
-7. UI scrolls to bottom; logs optionally saved.
+1. **RAG Pipeline**: Introduction of a Vector DB (Pinecone/Supabase Vector) for indexing user-uploaded PDFs and textbook chapters.
+2. **Persistence Layer**: Migration to PostgreSQL (Supabase) for cross-device authentication and session sync.
+3. **Multi-Agent Orchestration**: Splitting logic into a "Planner Agent" (scheduling) and an "Execution Agent" (tutoring).
 
 ---
-
-## 8. Error Handling & Reliability
-
-**503 / Model Overloaded**
-
-- Retry with exponential backoff: wait = base * 2^attempt (base=500ms, attempts=3).
-- Graceful fallback: “Model busy — trying again…” message.
-- Queue requests locally and replay.
-- Log errors (console + optional Sentry).
-
----
-
-## 9. Security & Privacy
-
-- API keys stored in Vercel environment variables (SB_API_KEY).
-- No .env committed to repo.
-- CORS restricted to frontend origin.
-- No sensitive PII stored.
-- Rotate API keys if compromised.
-- Disclaimer in UI: correctness + plagiarism avoidance.
-
----
-
-## 10. Monitoring & Observability
-
-- Logs: Vercel serverless + client console.
-- Error tracking: Sentry for frontend.
-- Metrics:
-    - Requests per minute.
-    - 503 error rate.
-    - Average latency.
-- Alerts: Trigger if repeated 503s or high error rates.
-
----
-
-## 11. Testing & QA
-
-**Unit Tests**
-- Components: ChatMessage, ChatForm.
-- Utils: history formatting, response parsing.
-
-**Integration Tests**
-- Mock serverless function (MSW).
-
-**E2E Tests**
-- Playwright/Cypress to simulate chat sessions.
-
-**Manual Acceptance Scenarios**
-1. Ask a math problem → verify correct explanation.
-2. Provide schedule → verify 2hr study plan generated.
-3. Simulate Groq 503 → verify retry/backoff UI.
-
----
-
-## 12. Deployment & CI/CD
-
-**Deployment (Vercel)**
-
-1. Push repo to GitHub.
-2. Import in Vercel dashboard → New Project.
-3. Add env variables:
-    - SB_API_KEY
-    - VITE_API_URL
-4. Build: npm run build (Vite → dist/).
-5. Deploy.
-
-**CI/CD**
-
-- Vercel auto-deploys on GitHub push.
-- GitHub Actions (optional): run lint + tests before deploy.
-
----
-
-## 13. Persistence & Scaling Roadmap
-
-- Short term: LocalStorage persistence.
-- Mid term: Supabase / Firebase for accounts & tasks.
-- Long term:
-    - RAG pipeline (vector DB like Pinecone).
-    - Multi-agent pipeline (Planner + Executor).
-    - Scheduled worker for reminders.
-    - Redis queue for scaling.
+MD Umair Alam, 2026.
+Designed with ❤️ at IIT Delhi.
