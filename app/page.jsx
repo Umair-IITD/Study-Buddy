@@ -40,7 +40,7 @@ export default function Home() {
       if (!response.ok) throw new Error("Failed to fetch response");
       const data = await response.json();
 
-      const botMessage = { role: "model", text: data.text };
+      const botMessage = { role: "assistant", text: data.text };
       const finalMessages = [...newMessages, botMessage];
       setMessages(finalMessages);
 
@@ -52,7 +52,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Chat Error:", error);
-      setMessages((prev) => [...prev, { role: "model", text: "⚠️ Error: Connection issue. Please try again." }]);
+      setMessages((prev) => [...prev, { role: "assistant", text: "⚠️ Error: Connection issue. Please try again." }]);
     } finally {
       setIsLoading(false);
     }

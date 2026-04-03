@@ -55,7 +55,7 @@ Build an AI agent prototype — **Study Buddy** — that helps students with ass
      | --(1) calls-->  [/api/generate (Serverless Endpoint)]  
      |                        |
      |                        v
-     |                [Google Gemini API]
+     |                [Groq API (Llama 3)]
      |                        |
      v                        v
  LocalStorage            (optional) DB (Supabase/Firebase)
@@ -65,7 +65,7 @@ Build an AI agent prototype — **Study Buddy** — that helps students with ass
 Flow:
 
 1. User types a query → frontend formats request (prepends StudyBuddyInfo system context optionally) and calls /api/generate.
-2. Serverless function receives request, reads server-side environment key, and calls Gemini.
+2. Serverless function receives request, reads server-side environment key, and calls Groq SDK.
 3. Response returned to frontend → UI updates chat and optionally persists logs/tasks.
 
 Why serverless?
@@ -88,14 +88,14 @@ Why serverless?
 
 **Backend (Serverless / Node API)**
 
-- /api/generate — receives chat history, forwards to Gemini with server-side API key.
+- /api/generate — receives chat history, forwards to Groq with server-side API key.
 - /api/tasks — CRUD for planner tasks (optional).
 - /api/logs — store interaction logs (optional).
 - Responsibilities: secure API key usage, retries/backoff, validate inputs.
 
 **AI Layer**
 
-- Google Gemini (gemini-2.5-flash) is used.
+- Groq Llama 3 8B model is used.
 - System prompt (StudyBuddyInfo.js) supplies persona/context.
 
 **Persistence (Optional)**
@@ -156,8 +156,8 @@ Why serverless?
 1. User types message in ChatForm.
 2. Frontend appends message to chatHistory (role=user).
 3. Frontend sends POST /api/generate with history (prepend system prompt).
-4. Serverless forwards to Gemini with secret key.
-5. Gemini responds → serverless returns response.
+4. Serverless forwards to Groq with secret key.
+5. Groq responds → serverless returns response.
 6. Frontend updates chatHistory with model response (role=model).
 7. UI scrolls to bottom; logs optionally saved.
 
@@ -176,7 +176,7 @@ Why serverless?
 
 ## 9. Security & Privacy
 
-- API keys stored in Vercel environment variables (GEMINI_API_KEY).
+- API keys stored in Vercel environment variables (SB_API_KEY).
 - No .env committed to repo.
 - CORS restricted to frontend origin.
 - No sensitive PII stored.
@@ -212,7 +212,7 @@ Why serverless?
 **Manual Acceptance Scenarios**
 1. Ask a math problem → verify correct explanation.
 2. Provide schedule → verify 2hr study plan generated.
-3. Simulate Gemini 503 → verify retry/backoff UI.
+3. Simulate Groq 503 → verify retry/backoff UI.
 
 ---
 
@@ -223,7 +223,7 @@ Why serverless?
 1. Push repo to GitHub.
 2. Import in Vercel dashboard → New Project.
 3. Add env variables:
-    - GEMINI_API_KEY
+    - SB_API_KEY
     - VITE_API_URL
 4. Build: npm run build (Vite → dist/).
 5. Deploy.
