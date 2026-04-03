@@ -1,67 +1,74 @@
-# 📚 Study Buddy – AI Assignment Planner
-Author: Md Umair Alam; 
-Institute: IIT Delhi; 
-Department: Biotechnology and Biochemical Engineering
+# Study Buddy 🤖 | AI-Powered Academic Assistant
 
-## Overview
-**Study Buddy** is an AI-powered chatbot designed to help students plan, schedule, and manage their studies.  
-It acts as a personal tutor and productivity assistant by:
-- Explaining academic concepts in simple terms
-- Helping with assignments and coding tasks
-- Suggesting personalized study plans and timetables
-- Tracking progress and keeping students motivated
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Gemini AI](https://img.shields.io/badge/Gemini_AI-1.5_Flash-4285F4?style=for-the-badge&logo=google-gemini)](https://ai.google.dev/)
+[![Vercel](https://img.shields.io/badge/Vercel-Deploy-000000?style=for-the-badge&logo=vercel)](https://vercel.com/)
 
-This project was built as part of the **SDE Assignment Round**.
+**Study Buddy** is a production-grade AI chatbot designed to help students optimize their academic workflows. From generating personalized study plans to explaining complex STEM concepts, Study Buddy acts as a 24/7 tutor and productivity coach.
 
----
+## 🚀 Key Features
 
-## ✨ Features
-- 🤖 **Interactive Chatbot UI**: Built with React, togglable chatbot popup  
-- 📘 **Assignment Helper**: Explains concepts across subjects (math, science, programming, etc.)  
-- 📝 **Study Planner & Scheduler**: Suggests timetables, breaks, and task organization  
-- 📊 **Progress Tracking**: Helps track completed vs. pending tasks  
-- 🎯 **Motivation & Guidance**: Acts as a friendly mentor with encouragement  
-
----
+- **Personalized Study Planning**: Generates detailed timetables based on user-provided class schedules and goals.
+- **STEM Concept Clarification**: Uses Google's Gemini 1.5 Flash to provide step-by-step explanations for Math, Physics, and Coding.
+- **Premium UX/UI**: A sleek, dark-themed interface built with Tailwind CSS, featuring glassmorphism, responsive sidebars, and smooth animations.
+- **Smart Markdown Rendering**: Fully supports Markdown for AI responses, including code highlighting and academic formatting via `react-markdown`.
+- **Persistent Sessions**: Uses `localStorage` to save user chat history locally, providing a seamless experience across page refreshes.
+- **Security-First Architecture**: Implements Serverless API Routes to keep LLM API keys hidden from the client-side.
 
 ## 🛠️ Tech Stack
-- **Frontend**: React + Vite  
-- **Language Model**: Google Gemini API (`gemini-2.5-flash`)  
-- **Styling**: CSS  
-- **Deployment**: Vercel (recommended)  
+
+- **Frontend**: Next.js 15 (App Router), React 19
+- **Styling**: Tailwind CSS
+- **AI**: Google Generative AI (@google/generative-ai)
+- **Icons**: Lucide React
+- **Deployment**: Vercel
+
+## 🏗️ Architecture & Decisions
+
+### Why Next.js over Vite?
+The original prototype was built with Vite. While fast, Vite exposes environment variables to the browser's network tab. I migrated the project to **Next.js** to utilize **Serverless Functions**. This architectural shift ensures that the `GEMINI_API_KEY` stays securely on the server, a critical requirement for production-level AI applications.
+
+### Design Philosophy
+The UI follows modern design trends:
+- **Glassmorphism**: Subtle translucent backgrounds for headers and inputs.
+- **Interactive Feedback**: Loading states, auto-resizing textareas, and copy-to-clipboard functionality to minimize user friction.
+- **Accessibility**: High-contrast text and mobile-first responsive design.
+
+### Prompt Engineering
+The system instructions (found in `lib/gemini.js`) are carefully crafted to ensure the AI maintains an "Academic Mentor" persona—prioritizing explanation over just giving direct answers to prevent plagiarism.
+
+## 🏁 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- A Google Gemini API Key ([Get one here](https://aistudio.google.com/))
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Umair-IITD/Study-Buddy.git
+   cd Study-Buddy
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Create a `.env.local` file in the root directory:
+   ```env
+   VITE_GEMINI_API_KEY=your_api_key_here
+   ```
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📈 Future Roadmap
+- [ ] **Supabase Integration**: Persistent cloud-based chat history and user accounts.
+- [ ] **RAG (Retrieval-Augmented Generation)**: Allow students to upload PDFs/Notes for the AI to reference.
+- [ ] **Voice Interaction**: Implement Web Speech API for hands-free study sessions.
 
 ---
 
-## 📂 Project Structure
-Study-Buddy/
-│── src/
-│ ├── components/ # UI components (ChatForm, ChatMessage, ChatbotIcon)
-│ ├── StudyBuddyInfo.js # AI context & instructions
-│ ├── App.jsx # Main application logic
-│ └── index.css # Styles
-│── .env # Environment variables (API key & URL)
-│── index.html
-│── package.json
-
-
----
-
-## ⚙️ Setup Instructions
-
-### 1. Clone the repo
-```bash
-git clone https://github.com/Umair-IITD/Study-Buddy.git
-cd Study-Buddy
-
-### 2. Install dependencies
-npm install
-
-### 3. Add environment variables
-Create a .env file in the root and add:
-VITE_GEMINI_API_KEY=your_api_key_here
-VITE_API_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
-
-### 4. Run locally
-npm run dev
-
-The app will run on http://localhost:5173.
+Built with ❤️ by **Md Umair Alam** (IIT Delhi)
